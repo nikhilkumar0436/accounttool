@@ -5,6 +5,7 @@ import com.accounttool.entity.User;
 import com.accounttool.repository.CompanyRepository;
 import com.accounttool.repository.UserRepository;
 import com.accounttool.security.UserDetailsImpl;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -38,11 +39,7 @@ public class CompanyController {
     
     @PostMapping
     @PreAuthorize("hasRole('ACCOUNTANT') or hasRole('ADMIN')")
-    public ResponseEntity<?> createCompany(@RequestBody Company company, Authentication authentication) {
-        if (companyRepository.existsByGstin(company.getGstin())) {
-            return ResponseEntity.badRequest().body("Error: GSTIN already exists!");
-        }
-        
+    public ResponseEntity<?> createCompany(@Valid @RequestBody Company company, Authentication authentication) {
         UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
         User user = userRepository.findById(userDetails.getId())
                 .orElseThrow(() -> new RuntimeException("User not found"));
@@ -53,7 +50,7 @@ public class CompanyController {
     
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('ACCOUNTANT') or hasRole('ADMIN')")
-    public ResponseEntity<Company> updateCompany(@PathVariable Long id, @RequestBody Company companyDetails) {
+    public ResponseEntity<Company> updateCompany(@PathVariable Long id, @Valid @RequestBody Company companyDetails) {
         return companyRepository.findById(id)
                 .map(company -> {
                     company.setName(companyDetails.getName());
