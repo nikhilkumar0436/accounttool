@@ -69,9 +69,16 @@ Create a PostgreSQL database:
 
 ```sql
 CREATE DATABASE accounttool;
-CREATE USER postgres WITH PASSWORD 'postgres';
-GRANT ALL PRIVILEGES ON DATABASE accounttool TO postgres;
 ```
+
+**Note:** The default PostgreSQL user `postgres` is used. If you want to use a different user, create one:
+
+```sql
+CREATE USER accounttool_user WITH PASSWORD 'your_password';
+GRANT ALL PRIVILEGES ON DATABASE accounttool TO accounttool_user;
+```
+
+Then update `application.properties` with your custom credentials.
 
 ### 2. Backend Setup
 
