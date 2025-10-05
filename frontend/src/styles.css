@@ -1,0 +1,40 @@
+/* Global Styles */
+html, body {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  font-family: Roboto, "Helvetica Neue", sans-serif;
+}
+
+.container {
+  padding: 20px;
+}
+
+.spacer {
+  flex: 1 1 auto;
+}
+
+.mat-toolbar {
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+}
+
+.form-field-full-width {
+  width: 100%;
+}
+
+.mat-card {
+  margin: 20px;
+}
+
+.table-container {
+  overflow-x: auto;
+}
+
+.action-buttons {
+  display: flex;
+  gap: 10px;
+}

@@ -1,0 +1,58 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:15-alpine
+    container_name: accounttool-postgres
+    environment:
+      POSTGRES_DB: accounttool_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - accounttool-network
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: accounttool-backend
+    environment:
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_NAME: accounttool_db
+      DB_USERNAME: postgres
+      DB_PASSWORD: postgres
+      JWT_SECRET: your-secret-key-change-this-in-production-min-256-bits-long-key
+      JWT_EXPIRATION: 86400000
+      SERVER_PORT: 8080
+      CORS_ALLOWED_ORIGINS: http://localhost:4200
+      GSTIN_VALIDATION_ENABLED: true
+    ports:
+      - "8080:8080"
+    depends_on:
+      - postgres
+    networks:
+      - accounttool-network
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: accounttool-frontend
+    ports:
+      - "4200:80"
+    depends_on:
+      - backend
+    networks:
+      - accounttool-network
+
+volumes:
+  postgres_data:
+
+networks:
+  accounttool-network:
+    driver: bridge
