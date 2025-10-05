@@ -43,6 +43,10 @@ import { AuthService } from '../services/auth.service';
                     [disabled]="!loginForm.valid" class="full-width">
               Login
             </button>
+            
+            <button mat-button type="button" (click)="goToSignup()" class="full-width">
+              Don't have an account? Sign Up
+            </button>
           </form>
         </mat-card-content>
       </mat-card>
@@ -99,5 +103,9 @@ export class LoginComponent {
         }
       });
     }
+  }
+
+  goToSignup(): void {
+    this.router.navigate(['/signup']);
   }
 }
