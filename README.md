@@ -293,6 +293,68 @@ npm run build
 # Deploy dist/frontend to web server
 ```
 
+## Troubleshooting
+
+### HTTP Error 0 / Connection Refused
+
+If you see errors like `Http failure response for http://localhost:8080: 0 Unknown Error`:
+
+1. **Ensure the backend is running:**
+   ```bash
+   cd backend
+   mvn spring-boot:run
+   ```
+   You should see: `Started AccountToolApplication`
+
+2. **Check if PostgreSQL is running:**
+   ```bash
+   # On Linux/Mac
+   sudo service postgresql status
+   
+   # On Windows
+   pg_ctl status
+   ```
+
+3. **Verify backend is accessible:**
+   ```bash
+   curl http://localhost:8080/api/auth/login
+   ```
+   Should return: `{"timestamp":...}` (401 error is expected without credentials)
+
+4. **Check CORS configuration:**
+   - Backend `application.properties` should have: `cors.allowed.origins=http://localhost:4200`
+   - Frontend should connect to: `http://localhost:8080`
+
+5. **Check browser console for detailed errors:**
+   - Open Developer Tools (F12)
+   - Look for CORS errors or network failures
+
+### Authentication Issues
+
+If you can't login or get 403 errors:
+
+1. **Initialize database roles:**
+   ```sql
+   INSERT INTO roles (name, description) VALUES 
+   ('ROLE_ADMIN', 'Administrator with full access'),
+   ('ROLE_ACCOUNTANT', 'Accountant with accounting access'),
+   ('ROLE_USER', 'Regular user with read access');
+   ```
+
+2. **Check JWT token:**
+   - Token should be in sessionStorage
+   - Token format: `Bearer xxx.yyy.zzz`
+
+### Company Creation Fails
+
+If you see validation errors:
+
+1. **GSTIN format:** Must be 15 characters, format: `22AAAAA0000A1Z5`
+2. **PAN format:** Must be 10 characters, format: `AAAAA9999A`
+3. **Email:** Must be valid email format
+
+Check backend logs for detailed error messages.
+
 ## License
 
 This project is open source and available under the MIT License.
