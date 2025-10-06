@@ -16,19 +16,22 @@ public class LedgerController {
     private LedgerRepository ledgerRepository;
     
     @GetMapping
-    @PreAuthorize("hasAuthority('ROLE_USER') or hasAuthority('ROLE_ACCOUNTANT') or hasAuthority('ROLE_ADMIN')")
+    // TEMPORARILY DISABLED - UNCOMMENT TO RE-ENABLE
+    // @PreAuthorize("hasAuthority('ROLE_USER') or hasAuthority('ROLE_ACCOUNTANT') or hasAuthority('ROLE_ADMIN')")
     public ResponseEntity<List<Ledger>> getAllLedgers() {
         return ResponseEntity.ok(ledgerRepository.findAll());
     }
     
     @GetMapping("/company/{companyId}")
-    @PreAuthorize("hasAuthority('ROLE_USER') or hasAuthority('ROLE_ACCOUNTANT') or hasAuthority('ROLE_ADMIN')")
+    // TEMPORARILY DISABLED - UNCOMMENT TO RE-ENABLE
+    // @PreAuthorize("hasAuthority('ROLE_USER') or hasAuthority('ROLE_ACCOUNTANT') or hasAuthority('ROLE_ADMIN')")
     public ResponseEntity<List<Ledger>> getLedgersByCompany(@PathVariable Long companyId) {
         return ResponseEntity.ok(ledgerRepository.findByCompanyId(companyId));
     }
     
     @GetMapping("/{id}")
-    @PreAuthorize("hasAuthority('ROLE_USER') or hasAuthority('ROLE_ACCOUNTANT') or hasAuthority('ROLE_ADMIN')")
+    // TEMPORARILY DISABLED - UNCOMMENT TO RE-ENABLE
+    // @PreAuthorize("hasAuthority('ROLE_USER') or hasAuthority('ROLE_ACCOUNTANT') or hasAuthority('ROLE_ADMIN')")
     public ResponseEntity<Ledger> getLedgerById(@PathVariable Long id) {
         return ledgerRepository.findById(id)
                 .map(ResponseEntity::ok)
@@ -36,13 +39,15 @@ public class LedgerController {
     }
     
     @PostMapping
-    @PreAuthorize("hasAuthority('ROLE_ACCOUNTANT') or hasAuthority('ROLE_ADMIN')")
+    // TEMPORARILY DISABLED - UNCOMMENT TO RE-ENABLE
+    // @PreAuthorize("hasAuthority('ROLE_ACCOUNTANT') or hasAuthority('ROLE_ADMIN')")
     public ResponseEntity<Ledger> createLedger(@RequestBody Ledger ledger) {
         return ResponseEntity.ok(ledgerRepository.save(ledger));
     }
     
     @PutMapping("/{id}")
-    @PreAuthorize("hasAuthority('ROLE_ACCOUNTANT') or hasAuthority('ROLE_ADMIN')")
+    // TEMPORARILY DISABLED - UNCOMMENT TO RE-ENABLE
+    // @PreAuthorize("hasAuthority('ROLE_ACCOUNTANT') or hasAuthority('ROLE_ADMIN')")
     public ResponseEntity<Ledger> updateLedger(@PathVariable Long id, @RequestBody Ledger ledgerDetails) {
         return ledgerRepository.findById(id)
                 .map(ledger -> {
@@ -58,7 +63,8 @@ public class LedgerController {
     }
     
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
+    // TEMPORARILY DISABLED - UNCOMMENT TO RE-ENABLE
+    // @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     public ResponseEntity<?> deleteLedger(@PathVariable Long id) {
         return ledgerRepository.findById(id)
                 .map(ledger -> {

@@ -28,13 +28,15 @@ public class CompanyController {
     private UserRepository userRepository;
     
     @GetMapping
-    @PreAuthorize("hasAuthority('ROLE_USER') or hasAuthority('ROLE_ACCOUNTANT') or hasAuthority('ROLE_ADMIN')")
+    // TEMPORARILY DISABLED - UNCOMMENT TO RE-ENABLE
+    // @PreAuthorize("hasAuthority('ROLE_USER') or hasAuthority('ROLE_ACCOUNTANT') or hasAuthority('ROLE_ADMIN')")
     public ResponseEntity<List<Company>> getAllCompanies() {
         return ResponseEntity.ok(companyRepository.findAll());
     }
     
     @GetMapping("/{id}")
-    @PreAuthorize("hasAuthority('ROLE_USER') or hasAuthority('ROLE_ACCOUNTANT') or hasAuthority('ROLE_ADMIN')")
+    // TEMPORARILY DISABLED - UNCOMMENT TO RE-ENABLE
+    // @PreAuthorize("hasAuthority('ROLE_USER') or hasAuthority('ROLE_ACCOUNTANT') or hasAuthority('ROLE_ADMIN')")
     public ResponseEntity<Company> getCompanyById(@PathVariable Long id) {
         return companyRepository.findById(id)
                 .map(ResponseEntity::ok)
@@ -42,28 +44,31 @@ public class CompanyController {
     }
     
     @PostMapping
-    @PreAuthorize("hasAuthority('ROLE_ACCOUNTANT') or hasAuthority('ROLE_ADMIN')")
+    // TEMPORARILY DISABLED - UNCOMMENT TO RE-ENABLE
+    // @PreAuthorize("hasAuthority('ROLE_ACCOUNTANT') or hasAuthority('ROLE_ADMIN')")
     public ResponseEntity<?> createCompany(@Valid @RequestBody Company company, Authentication authentication) {
+        // TEMPORARILY: Handle null authentication when security is disabled
         if (authentication != null) {
             UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
             logger.info("User {} attempting to create company. Authorities: {}", 
                 userDetails.getUsername(), userDetails.getAuthorities());
+            
+            User user = userRepository.findById(userDetails.getId())
+                    .orElseThrow(() -> new RuntimeException("User not found"));
+            company.setCreatedBy(user);
         } else {
-            logger.warn("Authentication is null when creating company");
+            logger.warn("Authentication is null when creating company - security is temporarily disabled");
+            // When security is disabled, we need to handle createdBy differently
+            // For now, we'll leave it null or you could set a default user
         }
-        
-        UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
-        User user = userRepository.findById(userDetails.getId())
-                .orElseThrow(() -> new RuntimeException("User not found"));
-        
-        company.setCreatedBy(user);
         Company savedCompany = companyRepository.save(company);
         logger.info("Company created successfully: {}", savedCompany.getName());
         return ResponseEntity.ok(savedCompany);
     }
     
     @PutMapping("/{id}")
-    @PreAuthorize("hasAuthority('ROLE_ACCOUNTANT') or hasAuthority('ROLE_ADMIN')")
+    // TEMPORARILY DISABLED - UNCOMMENT TO RE-ENABLE
+    // @PreAuthorize("hasAuthority('ROLE_ACCOUNTANT') or hasAuthority('ROLE_ADMIN')")
     public ResponseEntity<Company> updateCompany(@PathVariable Long id, @Valid @RequestBody Company companyDetails) {
         return companyRepository.findById(id)
                 .map(company -> {
@@ -84,7 +89,8 @@ public class CompanyController {
     }
     
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
+    // TEMPORARILY DISABLED - UNCOMMENT TO RE-ENABLE
+    // @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     public ResponseEntity<?> deleteCompany(@PathVariable Long id) {
         return companyRepository.findById(id)
                 .map(company -> {

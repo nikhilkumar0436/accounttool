@@ -20,7 +20,8 @@ import org.springframework.web.cors.CorsConfigurationSource;
 
 @Configuration
 @EnableWebSecurity
-@EnableMethodSecurity
+// TEMPORARILY DISABLED - UNCOMMENT TO RE-ENABLE
+// @EnableMethodSecurity
 public class SecurityConfig {
     @Autowired
     private UserDetailsServiceImpl userDetailsService;
@@ -55,6 +56,21 @@ public class SecurityConfig {
     
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+        // TEMPORARILY DISABLED SECURITY - ALL ENDPOINTS ARE OPEN
+        // TO RE-ENABLE: Uncomment the security configuration below and comment out permitAll()
+        
+        http.csrf(csrf -> csrf.disable())
+            .cors(cors -> cors.configurationSource(corsConfigurationSource))
+            .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+            .authorizeHttpRequests(auth -> auth
+                .anyRequest().permitAll()  // TEMPORARILY ALLOW ALL REQUESTS
+            );
+        
+        // TEMPORARILY DISABLED - UNCOMMENT TO RE-ENABLE JWT AUTHENTICATION
+        // http.authenticationProvider(authenticationProvider());
+        // http.addFilterBefore(authenticationJwtTokenFilter(), UsernamePasswordAuthenticationFilter.class);
+        
+        /* ORIGINAL SECURITY CONFIGURATION - UNCOMMENT TO RE-ENABLE:
         http.csrf(csrf -> csrf.disable())
             .cors(cors -> cors.configurationSource(corsConfigurationSource))
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
@@ -65,6 +81,7 @@ public class SecurityConfig {
         
         http.authenticationProvider(authenticationProvider());
         http.addFilterBefore(authenticationJwtTokenFilter(), UsernamePasswordAuthenticationFilter.class);
+        */
         
         return http.build();
     }

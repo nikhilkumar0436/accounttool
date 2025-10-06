@@ -24,19 +24,22 @@ public class JournalController {
     private UserRepository userRepository;
     
     @GetMapping
-    @PreAuthorize("hasAuthority('ROLE_USER') or hasAuthority('ROLE_ACCOUNTANT') or hasAuthority('ROLE_ADMIN')")
+    // TEMPORARILY DISABLED - UNCOMMENT TO RE-ENABLE
+    // @PreAuthorize("hasAuthority('ROLE_USER') or hasAuthority('ROLE_ACCOUNTANT') or hasAuthority('ROLE_ADMIN')")
     public ResponseEntity<List<Journal>> getAllJournals() {
         return ResponseEntity.ok(journalRepository.findAll());
     }
     
     @GetMapping("/company/{companyId}")
-    @PreAuthorize("hasAuthority('ROLE_USER') or hasAuthority('ROLE_ACCOUNTANT') or hasAuthority('ROLE_ADMIN')")
+    // TEMPORARILY DISABLED - UNCOMMENT TO RE-ENABLE
+    // @PreAuthorize("hasAuthority('ROLE_USER') or hasAuthority('ROLE_ACCOUNTANT') or hasAuthority('ROLE_ADMIN')")
     public ResponseEntity<List<Journal>> getJournalsByCompany(@PathVariable Long companyId) {
         return ResponseEntity.ok(journalRepository.findByCompanyId(companyId));
     }
     
     @GetMapping("/{id}")
-    @PreAuthorize("hasAuthority('ROLE_USER') or hasAuthority('ROLE_ACCOUNTANT') or hasAuthority('ROLE_ADMIN')")
+    // TEMPORARILY DISABLED - UNCOMMENT TO RE-ENABLE
+    // @PreAuthorize("hasAuthority('ROLE_USER') or hasAuthority('ROLE_ACCOUNTANT') or hasAuthority('ROLE_ADMIN')")
     public ResponseEntity<Journal> getJournalById(@PathVariable Long id) {
         return journalRepository.findById(id)
                 .map(ResponseEntity::ok)
@@ -44,17 +47,20 @@ public class JournalController {
     }
     
     @PostMapping
-    @PreAuthorize("hasAuthority('ROLE_ACCOUNTANT') or hasAuthority('ROLE_ADMIN')")
+    // TEMPORARILY DISABLED - UNCOMMENT TO RE-ENABLE
+    // @PreAuthorize("hasAuthority('ROLE_ACCOUNTANT') or hasAuthority('ROLE_ADMIN')")
     public ResponseEntity<?> createJournal(@RequestBody Journal journal, Authentication authentication) {
         if (journalRepository.findByJournalNumber(journal.getJournalNumber()).isPresent()) {
             return ResponseEntity.badRequest().body("Error: Journal number already exists!");
         }
         
-        UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
-        User user = userRepository.findById(userDetails.getId())
-                .orElseThrow(() -> new RuntimeException("User not found"));
-        
-        journal.setCreatedBy(user);
+        // TEMPORARILY: Handle null authentication when security is disabled
+        if (authentication != null) {
+            UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
+            User user = userRepository.findById(userDetails.getId())
+                    .orElseThrow(() -> new RuntimeException("User not found"));
+            journal.setCreatedBy(user);
+        }
         
         // Calculate totals from entries
         BigDecimal totalDebit = journal.getEntries().stream()
@@ -80,7 +86,8 @@ public class JournalController {
     }
     
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
+    // TEMPORARILY DISABLED - UNCOMMENT TO RE-ENABLE
+    // @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     public ResponseEntity<?> deleteJournal(@PathVariable Long id) {
         return journalRepository.findById(id)
                 .map(journal -> {
