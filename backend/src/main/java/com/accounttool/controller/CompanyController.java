@@ -6,6 +6,8 @@ import com.accounttool.repository.CompanyRepository;
 import com.accounttool.repository.UserRepository;
 import com.accounttool.security.UserDetailsImpl;
 import jakarta.validation.Valid;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -17,6 +19,8 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/companies")
 public class CompanyController {
+    private static final Logger logger = LoggerFactory.getLogger(CompanyController.class);
+    
     @Autowired
     private CompanyRepository companyRepository;
     
@@ -40,12 +44,22 @@ public class CompanyController {
     @PostMapping
     @PreAuthorize("hasAuthority('ROLE_ACCOUNTANT') or hasAuthority('ROLE_ADMIN')")
     public ResponseEntity<?> createCompany(@Valid @RequestBody Company company, Authentication authentication) {
+        if (authentication != null) {
+            UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
+            logger.info("User {} attempting to create company. Authorities: {}", 
+                userDetails.getUsername(), userDetails.getAuthorities());
+        } else {
+            logger.warn("Authentication is null when creating company");
+        }
+        
         UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
         User user = userRepository.findById(userDetails.getId())
                 .orElseThrow(() -> new RuntimeException("User not found"));
         
         company.setCreatedBy(user);
-        return ResponseEntity.ok(companyRepository.save(company));
+        Company savedCompany = companyRepository.save(company);
+        logger.info("Company created successfully: {}", savedCompany.getName());
+        return ResponseEntity.ok(savedCompany);
     }
     
     @PutMapping("/{id}")

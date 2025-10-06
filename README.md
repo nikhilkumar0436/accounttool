@@ -358,14 +358,32 @@ If you can't login or get 403 errors:
    WHERE u.username = 'your_username' AND r.name = 'ROLE_ACCOUNTANT';
    ```
 
-3. **403 Access Denied errors:**
+3. **IMPORTANT: Logout and login again after role changes**
+   - JWT tokens contain role information that is set when you login
+   - If you update roles in the database, you MUST logout and login again
+   - Old tokens will still have the old roles
+   - Steps:
+     1. Logout from the application (click profile/logout button)
+     2. Clear browser sessionStorage: Open DevTools (F12) → Application/Storage → Session Storage → Clear
+     3. Login again with updated credentials
+
+4. **Verify your current roles:**
+   Call the user info endpoint to see what roles are in your current JWT token:
+   ```bash
+   curl -H "Authorization: Bearer YOUR_JWT_TOKEN" http://localhost:8080/api/auth/user-info
+   ```
+
+5. **403 Access Denied errors:**
    - `ROLE_USER`: Can only view/read data
    - `ROLE_ACCOUNTANT`: Can create and edit companies, ledgers, journals, invoices
    - `ROLE_ADMIN`: Full access including delete operations
    
-   If you get 403, check your user has the correct role for the operation you're trying to perform.
+   If you get 403, check:
+   - Your user has the correct role in the database
+   - You have logged out and logged in again after role assignment
+   - Check backend logs for: "User X attempting to create company. Authorities: [...]"
 
-4. **Check JWT token:**
+6. **Check JWT token:**
    - Token should be in sessionStorage
    - Token format: `Bearer xxx.yyy.zzz`
 

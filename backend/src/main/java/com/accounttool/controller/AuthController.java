@@ -107,4 +107,19 @@ public class AuthController {
         
         return ResponseEntity.ok(new MessageResponse("User registered successfully!"));
     }
+    
+    @GetMapping("/user-info")
+    public ResponseEntity<?> getUserInfo(Authentication authentication) {
+        if (authentication == null) {
+            return ResponseEntity.status(401).body(new MessageResponse("Not authenticated"));
+        }
+        
+        UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
+        List<String> roles = userDetails.getAuthorities().stream()
+                .map(item -> item.getAuthority())
+                .collect(Collectors.toList());
+        
+        return ResponseEntity.ok(new JwtResponse("", userDetails.getId(), 
+                userDetails.getUsername(), userDetails.getEmail(), roles));
+    }
 }
