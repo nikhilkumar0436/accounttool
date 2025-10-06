@@ -117,10 +117,26 @@ export class SignupComponent {
           this.router.navigate(['/login']);
         },
         error: (error) => {
-          this.snackBar.open('Registration failed. Please try again.', 'Close', { duration: 3000 });
+          const errorMessage = this.extractErrorMessage(error);
+          this.snackBar.open(errorMessage, 'Close', { duration: 5000 });
         }
       });
     }
+  }
+
+  private extractErrorMessage(error: any): string {
+    if (error.error) {
+      if (error.error.message) {
+        return error.error.message;
+      }
+      if (typeof error.error === 'string') {
+        return error.error;
+      }
+    }
+    if (error.message) {
+      return error.message;
+    }
+    return 'Registration failed. Please try again.';
   }
 
   goToLogin(): void {

@@ -341,7 +341,31 @@ If you can't login or get 403 errors:
    ('ROLE_USER', 'Regular user with read access');
    ```
 
-2. **Check JWT token:**
+2. **Assign proper role to user:**
+   By default, new users get `ROLE_USER` which has read-only access. To create/edit companies, users need `ROLE_ACCOUNTANT` or `ROLE_ADMIN`.
+   
+   ```sql
+   -- Check user's roles
+   SELECT u.username, r.name as role 
+   FROM users u 
+   JOIN user_roles ur ON u.id = ur.user_id 
+   JOIN roles r ON ur.role_id = r.id;
+   
+   -- Add ROLE_ACCOUNTANT to user (replace user_id and role_id)
+   INSERT INTO user_roles (user_id, role_id) 
+   SELECT u.id, r.id 
+   FROM users u, roles r 
+   WHERE u.username = 'your_username' AND r.name = 'ROLE_ACCOUNTANT';
+   ```
+
+3. **403 Access Denied errors:**
+   - `ROLE_USER`: Can only view/read data
+   - `ROLE_ACCOUNTANT`: Can create and edit companies, ledgers, journals, invoices
+   - `ROLE_ADMIN`: Full access including delete operations
+   
+   If you get 403, check your user has the correct role for the operation you're trying to perform.
+
+4. **Check JWT token:**
    - Token should be in sessionStorage
    - Token format: `Bearer xxx.yyy.zzz`
 
