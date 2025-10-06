@@ -32,19 +32,19 @@ public class GSTInvoiceController {
     private GSTCalculationService gstCalculationService;
     
     @GetMapping
-    @PreAuthorize("hasRole('USER') or hasRole('ACCOUNTANT') or hasRole('ADMIN')")
+    @PreAuthorize("hasAuthority('ROLE_USER') or hasAuthority('ROLE_ACCOUNTANT') or hasAuthority('ROLE_ADMIN')")
     public ResponseEntity<List<GSTInvoice>> getAllInvoices() {
         return ResponseEntity.ok(invoiceRepository.findAll());
     }
     
     @GetMapping("/company/{companyId}")
-    @PreAuthorize("hasRole('USER') or hasRole('ACCOUNTANT') or hasRole('ADMIN')")
+    @PreAuthorize("hasAuthority('ROLE_USER') or hasAuthority('ROLE_ACCOUNTANT') or hasAuthority('ROLE_ADMIN')")
     public ResponseEntity<List<GSTInvoice>> getInvoicesByCompany(@PathVariable Long companyId) {
         return ResponseEntity.ok(invoiceRepository.findByCompanyId(companyId));
     }
     
     @GetMapping("/company/{companyId}/type/{type}")
-    @PreAuthorize("hasRole('USER') or hasRole('ACCOUNTANT') or hasRole('ADMIN')")
+    @PreAuthorize("hasAuthority('ROLE_USER') or hasAuthority('ROLE_ACCOUNTANT') or hasAuthority('ROLE_ADMIN')")
     public ResponseEntity<List<GSTInvoice>> getInvoicesByCompanyAndType(
             @PathVariable Long companyId, 
             @PathVariable GSTInvoice.InvoiceType type) {
@@ -52,7 +52,7 @@ public class GSTInvoiceController {
     }
     
     @GetMapping("/{id}")
-    @PreAuthorize("hasRole('USER') or hasRole('ACCOUNTANT') or hasRole('ADMIN')")
+    @PreAuthorize("hasAuthority('ROLE_USER') or hasAuthority('ROLE_ACCOUNTANT') or hasAuthority('ROLE_ADMIN')")
     public ResponseEntity<GSTInvoice> getInvoiceById(@PathVariable Long id) {
         return invoiceRepository.findById(id)
                 .map(ResponseEntity::ok)
@@ -60,7 +60,7 @@ public class GSTInvoiceController {
     }
     
     @PostMapping
-    @PreAuthorize("hasRole('ACCOUNTANT') or hasRole('ADMIN')")
+    @PreAuthorize("hasAuthority('ROLE_ACCOUNTANT') or hasAuthority('ROLE_ADMIN')")
     public ResponseEntity<?> createInvoice(@RequestBody GSTInvoice invoice, Authentication authentication) {
         if (invoiceRepository.findByInvoiceNumber(invoice.getInvoiceNumber()).isPresent()) {
             return ResponseEntity.badRequest().body("Error: Invoice number already exists!");
@@ -92,7 +92,7 @@ public class GSTInvoiceController {
     }
     
     @PutMapping("/{id}")
-    @PreAuthorize("hasRole('ACCOUNTANT') or hasRole('ADMIN')")
+    @PreAuthorize("hasAuthority('ROLE_ACCOUNTANT') or hasAuthority('ROLE_ADMIN')")
     public ResponseEntity<?> updateInvoice(@PathVariable Long id, @RequestBody GSTInvoice invoiceDetails) {
         return invoiceRepository.findById(id)
                 .map(invoice -> {
@@ -127,7 +127,7 @@ public class GSTInvoiceController {
     }
     
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     public ResponseEntity<?> deleteInvoice(@PathVariable Long id) {
         return invoiceRepository.findById(id)
                 .map(invoice -> {

@@ -24,19 +24,19 @@ public class JournalController {
     private UserRepository userRepository;
     
     @GetMapping
-    @PreAuthorize("hasRole('USER') or hasRole('ACCOUNTANT') or hasRole('ADMIN')")
+    @PreAuthorize("hasAuthority('ROLE_USER') or hasAuthority('ROLE_ACCOUNTANT') or hasAuthority('ROLE_ADMIN')")
     public ResponseEntity<List<Journal>> getAllJournals() {
         return ResponseEntity.ok(journalRepository.findAll());
     }
     
     @GetMapping("/company/{companyId}")
-    @PreAuthorize("hasRole('USER') or hasRole('ACCOUNTANT') or hasRole('ADMIN')")
+    @PreAuthorize("hasAuthority('ROLE_USER') or hasAuthority('ROLE_ACCOUNTANT') or hasAuthority('ROLE_ADMIN')")
     public ResponseEntity<List<Journal>> getJournalsByCompany(@PathVariable Long companyId) {
         return ResponseEntity.ok(journalRepository.findByCompanyId(companyId));
     }
     
     @GetMapping("/{id}")
-    @PreAuthorize("hasRole('USER') or hasRole('ACCOUNTANT') or hasRole('ADMIN')")
+    @PreAuthorize("hasAuthority('ROLE_USER') or hasAuthority('ROLE_ACCOUNTANT') or hasAuthority('ROLE_ADMIN')")
     public ResponseEntity<Journal> getJournalById(@PathVariable Long id) {
         return journalRepository.findById(id)
                 .map(ResponseEntity::ok)
@@ -44,7 +44,7 @@ public class JournalController {
     }
     
     @PostMapping
-    @PreAuthorize("hasRole('ACCOUNTANT') or hasRole('ADMIN')")
+    @PreAuthorize("hasAuthority('ROLE_ACCOUNTANT') or hasAuthority('ROLE_ADMIN')")
     public ResponseEntity<?> createJournal(@RequestBody Journal journal, Authentication authentication) {
         if (journalRepository.findByJournalNumber(journal.getJournalNumber()).isPresent()) {
             return ResponseEntity.badRequest().body("Error: Journal number already exists!");
@@ -80,7 +80,7 @@ public class JournalController {
     }
     
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     public ResponseEntity<?> deleteJournal(@PathVariable Long id) {
         return journalRepository.findById(id)
                 .map(journal -> {

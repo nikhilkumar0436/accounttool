@@ -24,13 +24,13 @@ public class CompanyController {
     private UserRepository userRepository;
     
     @GetMapping
-    @PreAuthorize("hasRole('USER') or hasRole('ACCOUNTANT') or hasRole('ADMIN')")
+    @PreAuthorize("hasAuthority('ROLE_USER') or hasAuthority('ROLE_ACCOUNTANT') or hasAuthority('ROLE_ADMIN')")
     public ResponseEntity<List<Company>> getAllCompanies() {
         return ResponseEntity.ok(companyRepository.findAll());
     }
     
     @GetMapping("/{id}")
-    @PreAuthorize("hasRole('USER') or hasRole('ACCOUNTANT') or hasRole('ADMIN')")
+    @PreAuthorize("hasAuthority('ROLE_USER') or hasAuthority('ROLE_ACCOUNTANT') or hasAuthority('ROLE_ADMIN')")
     public ResponseEntity<Company> getCompanyById(@PathVariable Long id) {
         return companyRepository.findById(id)
                 .map(ResponseEntity::ok)
@@ -38,7 +38,7 @@ public class CompanyController {
     }
     
     @PostMapping
-    @PreAuthorize("hasRole('ACCOUNTANT') or hasRole('ADMIN')")
+    @PreAuthorize("hasAuthority('ROLE_ACCOUNTANT') or hasAuthority('ROLE_ADMIN')")
     public ResponseEntity<?> createCompany(@Valid @RequestBody Company company, Authentication authentication) {
         UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
         User user = userRepository.findById(userDetails.getId())
@@ -49,7 +49,7 @@ public class CompanyController {
     }
     
     @PutMapping("/{id}")
-    @PreAuthorize("hasRole('ACCOUNTANT') or hasRole('ADMIN')")
+    @PreAuthorize("hasAuthority('ROLE_ACCOUNTANT') or hasAuthority('ROLE_ADMIN')")
     public ResponseEntity<Company> updateCompany(@PathVariable Long id, @Valid @RequestBody Company companyDetails) {
         return companyRepository.findById(id)
                 .map(company -> {
@@ -70,7 +70,7 @@ public class CompanyController {
     }
     
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     public ResponseEntity<?> deleteCompany(@PathVariable Long id) {
         return companyRepository.findById(id)
                 .map(company -> {

@@ -6,6 +6,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatCardModule } from '@angular/material/card';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { CompanyService } from '../services/company.service';
 import { Company } from '../../shared/models/company.model';
 import { CompanyFormComponent } from './company-form.component';
@@ -20,15 +21,18 @@ import { CompanyFormComponent } from './company-form.component';
     MatIconModule,
     MatCardModule,
     MatDialogModule,
-    MatSnackBarModule
+    MatSnackBarModule,
+    MatTooltipModule
   ],
   template: `
     <mat-card>
       <mat-card-header>
-        <mat-card-title>Companies</mat-card-title>
-        <button mat-raised-button color="primary" (click)="openDialog()">
-          <mat-icon>add</mat-icon> Add Company
-        </button>
+        <div class="header-content">
+          <mat-card-title>Companies</mat-card-title>
+          <button mat-raised-button color="primary" (click)="openDialog()">
+            <mat-icon>add</mat-icon> Add Company
+          </button>
+        </div>
       </mat-card-header>
       <mat-card-content>
         <table mat-table [dataSource]="companies" class="mat-elevation-z8">
@@ -55,10 +59,10 @@ import { CompanyFormComponent } from './company-form.component';
           <ng-container matColumnDef="actions">
             <th mat-header-cell *matHeaderCellDef>Actions</th>
             <td mat-cell *matCellDef="let company">
-              <button mat-icon-button (click)="editCompany(company)">
+              <button mat-icon-button (click)="editCompany(company)" matTooltip="Edit">
                 <mat-icon>edit</mat-icon>
               </button>
-              <button mat-icon-button color="warn" (click)="deleteCompany(company.id)">
+              <button mat-icon-button color="warn" (click)="deleteCompany(company.id)" matTooltip="Delete">
                 <mat-icon>delete</mat-icon>
               </button>
             </td>
@@ -76,10 +80,20 @@ import { CompanyFormComponent } from './company-form.component';
     }
 
     mat-card-header {
+      margin-bottom: 20px;
+    }
+
+    .header-content {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 20px;
+      width: 100%;
+      gap: 16px;
+    }
+
+    mat-card-title {
+      margin: 0;
+      flex: 1;
     }
 
     table {
