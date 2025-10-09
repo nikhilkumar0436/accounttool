@@ -104,7 +104,7 @@ import { Ledger } from '../../shared/models/ledger.model';
 
             <mat-form-field appearance="outline" class="item-price">
               <mat-label>Unit Price</mat-label>
-              <input matInput type="number" formControlName="unitPrice" (input)="calculateItemTotal(i)" step="0.01" required>
+              <input matInput type="number" formControlName="ratePerUnit" (input)="calculateItemTotal(i)" step="0.01" required>
             </mat-form-field>
 
             <mat-form-field appearance="outline" class="item-gst">
@@ -288,7 +288,7 @@ export class InvoiceFormComponent implements OnInit {
       // Load existing invoice data
       this.invoiceForm.patchValue({
         companyId: this.data.invoice.company?.id,
-        partyId: this.data.invoice.party?.id,
+        partyId: this.data.invoice.partyLedger?.id,
         invoiceNumber: this.data.invoice.invoiceNumber,
         invoiceDate: new Date(this.data.invoice.invoiceDate!)
       });
@@ -299,7 +299,7 @@ export class InvoiceFormComponent implements OnInit {
             description: [item.description, Validators.required],
             hsnCode: [item.hsnCode || ''],
             quantity: [item.quantity, [Validators.required, Validators.min(1)]],
-            unitPrice: [item.unitPrice, [Validators.required, Validators.min(0)]],
+            ratePerUnit: [item.ratePerUnit, [Validators.required, Validators.min(0)]],
             gstRate: [item.gstRate, Validators.required],
             totalAmount: [item.totalAmount]
           }));
@@ -314,7 +314,7 @@ export class InvoiceFormComponent implements OnInit {
   }
 
   loadCompanies(): void {
-    this.companyService.getCompanies().subscribe({
+    this.companyService.getAllCompanies().subscribe({
       next: (companies) => {
         this.companies = companies;
       },
@@ -362,7 +362,7 @@ export class InvoiceFormComponent implements OnInit {
       description: ['', Validators.required],
       hsnCode: [''],
       quantity: [1, [Validators.required, Validators.min(1)]],
-      unitPrice: [0, [Validators.required, Validators.min(0)]],
+      ratePerUnit: [0, [Validators.required, Validators.min(0)]],
       gstRate: [18, Validators.required],
       totalAmount: [0]
     });
@@ -376,10 +376,10 @@ export class InvoiceFormComponent implements OnInit {
   calculateItemTotal(index: number): void {
     const item = this.items.at(index);
     const quantity = item.get('quantity')?.value || 0;
-    const unitPrice = item.get('unitPrice')?.value || 0;
+    const ratePerUnit = item.get('ratePerUnit')?.value || 0;
     const gstRate = item.get('gstRate')?.value || 0;
     
-    const subtotal = quantity * unitPrice;
+    const subtotal = quantity * ratePerUnit;
     const gstAmount = (subtotal * gstRate) / 100;
     const total = subtotal + gstAmount;
     
@@ -389,7 +389,7 @@ export class InvoiceFormComponent implements OnInit {
   getSubtotal(): number {
     return this.items.controls.reduce((sum, item) => {
       const qty = item.get('quantity')?.value || 0;
-      const price = item.get('unitPrice')?.value || 0;
+      const price = item.get('ratePerUnit')?.value || 0;
       return sum + (qty * price);
     }, 0);
   }
@@ -401,7 +401,7 @@ export class InvoiceFormComponent implements OnInit {
     
     const weightedGst = this.items.controls.reduce((sum, item) => {
       const qty = item.get('quantity')?.value || 0;
-      const price = item.get('unitPrice')?.value || 0;
+      const price = item.get('ratePerUnit')?.value || 0;
       const gstRate = item.get('gstRate')?.value || 0;
       const itemSubtotal = qty * price;
       return sum + (itemSubtotal * gstRate);
@@ -449,7 +449,7 @@ export class InvoiceFormComponent implements OnInit {
       const formValue = this.invoiceForm.value;
       const invoiceData = {
         company: { id: formValue.companyId },
-        party: { id: formValue.partyId },
+        partyLedger: { id: formValue.partyId },
         invoiceType: this.data.invoiceType,
         invoiceNumber: formValue.invoiceNumber,
         invoiceDate: formValue.invoiceDate,
@@ -462,14 +462,14 @@ export class InvoiceFormComponent implements OnInit {
           description: item.description,
           hsnCode: item.hsnCode || null,
           quantity: parseInt(item.quantity),
-          unitPrice: parseFloat(item.unitPrice),
+          ratePerUnit: parseFloat(item.ratePerUnit),
           gstRate: parseFloat(item.gstRate),
           totalAmount: parseFloat(item.totalAmount)
         }))
       };
 
       if (this.data.invoice) {
-        this.invoiceService.updateGSTInvoice(this.data.invoice.id!, invoiceData).subscribe({
+        this.invoiceService.updateInvoice(this.data.invoice.id!, invoiceData).subscribe({
           next: (invoice) => {
             this.snackBar.open('Invoice updated successfully', 'Close', { duration: 3000 });
             this.dialogRef.close(invoice);
@@ -480,7 +480,7 @@ export class InvoiceFormComponent implements OnInit {
           }
         });
       } else {
-        this.invoiceService.createGSTInvoice(invoiceData).subscribe({
+        this.invoiceService.createInvoice(invoiceData).subscribe({
           next: (invoice) => {
             this.snackBar.open('Invoice created successfully', 'Close', { duration: 3000 });
             this.dialogRef.close(invoice);
