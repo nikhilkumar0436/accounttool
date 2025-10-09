@@ -95,7 +95,7 @@ import { JournalFormComponent } from './journal-form.component';
         </mat-expansion-panel-header>
 
         <div class="details-content">
-          <p><strong>Company:</strong> {{ selectedJournal.company?.name }}</p>
+          <p><strong>Company:</strong> {{ selectedJournal.company.name }}</p>
           <p><strong>Narration:</strong> {{ selectedJournal.narration }}</p>
           
           <h4>Entries:</h4>
@@ -110,7 +110,7 @@ import { JournalFormComponent } from './journal-form.component';
             </thead>
             <tbody>
               <tr *ngFor="let entry of selectedJournal.entries">
-                <td>{{ entry.ledger?.name }}</td>
+                <td>{{ entry.ledger.name }}</td>
                 <td>{{ entry.description || '-' }}</td>
                 <td class="amount">{{ entry.debit ? ('₹' + (entry.debit | number:'1.2-2')) : '-' }}</td>
                 <td class="amount">{{ entry.credit ? ('₹' + (entry.credit | number:'1.2-2')) : '-' }}</td>

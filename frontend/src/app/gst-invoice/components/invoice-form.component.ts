@@ -14,7 +14,7 @@ import { GSTInvoiceService } from '../services/gst-invoice.service';
 import { LedgerService } from '../../ledger/services/ledger.service';
 import { CompanyService } from '../../company/services/company.service';
 import { GSTCalculationService } from '../services/gst-calculation.service';
-import { GSTInvoice } from '../../shared/models/gst-invoice.model';
+import { GSTInvoice, InvoiceType } from '../../shared/models/gst-invoice.model';
 import { Company } from '../../shared/models/company.model';
 import { Ledger } from '../../shared/models/ledger.model';
 
@@ -348,7 +348,7 @@ export class InvoiceFormComponent implements OnInit {
     this.ledgerService.getLedgersByCompany(companyId).subscribe({
       next: (ledgers) => {
         // Filter for party ledgers (typically Asset or Liability type, and GST applicable)
-        this.parties = ledgers.filter(l => l.gstApplicable);
+        this.parties = ledgers.filter(l => l.isGstApplicable);
       },
       error: (error) => {
         console.error('Error loading parties:', error);
@@ -447,22 +447,24 @@ export class InvoiceFormComponent implements OnInit {
   onSubmit(): void {
     if (this.invoiceForm.valid) {
       const formValue = this.invoiceForm.value;
-      const invoiceData = {
-        company: { id: formValue.companyId },
-        partyLedger: { id: formValue.partyId },
-        invoiceType: this.data.invoiceType,
+      const invoiceData: Partial<GSTInvoice> = {
+        company: { id: formValue.companyId } as Company,
+        partyLedger: { id: formValue.partyId } as Ledger,
+        invoiceType: this.data.invoiceType as InvoiceType,
         invoiceNumber: formValue.invoiceNumber,
         invoiceDate: formValue.invoiceDate,
-        subtotal: this.getSubtotal(),
-        cgst: this.isIntraState() ? this.getCGST() : 0,
-        sgst: this.isIntraState() ? this.getSGST() : 0,
-        igst: !this.isIntraState() ? this.getIGST() : 0,
+        taxableAmount: this.getSubtotal(),
+        cgstAmount: this.isIntraState() ? this.getCGST() : 0,
+        sgstAmount: this.isIntraState() ? this.getSGST() : 0,
+        igstAmount: !this.isIntraState() ? this.getIGST() : 0,
         totalAmount: this.getGrandTotal(),
         items: formValue.items.map((item: any) => ({
           description: item.description,
           hsnCode: item.hsnCode || null,
           quantity: parseInt(item.quantity),
+          unit: item.unit || 'Unit',
           ratePerUnit: parseFloat(item.ratePerUnit),
+          taxableValue: parseFloat(item.quantity) * parseFloat(item.ratePerUnit),
           gstRate: parseFloat(item.gstRate),
           totalAmount: parseFloat(item.totalAmount)
         }))
