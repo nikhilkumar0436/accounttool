@@ -18,7 +18,7 @@ public class LedgerController {
     @GetMapping
     @PreAuthorize("hasRole('USER') or hasRole('ACCOUNTANT') or hasRole('ADMIN')")
     public ResponseEntity<List<Ledger>> getAllLedgers() {
-        return ResponseEntity.ok(ledgerRepository.findAll());
+        return ResponseEntity.ok(ledgerRepository.findAllWithCompany());
     }
     
     @GetMapping("/company/{companyId}")

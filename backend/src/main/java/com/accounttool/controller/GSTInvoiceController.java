@@ -34,7 +34,7 @@ public class GSTInvoiceController {
     @GetMapping
     @PreAuthorize("hasRole('USER') or hasRole('ACCOUNTANT') or hasRole('ADMIN')")
     public ResponseEntity<List<GSTInvoice>> getAllInvoices() {
-        return ResponseEntity.ok(invoiceRepository.findAll());
+        return ResponseEntity.ok(invoiceRepository.findAllWithDetails());
     }
     
     @GetMapping("/company/{companyId}")
@@ -54,7 +54,7 @@ public class GSTInvoiceController {
     @GetMapping("/{id}")
     @PreAuthorize("hasRole('USER') or hasRole('ACCOUNTANT') or hasRole('ADMIN')")
     public ResponseEntity<GSTInvoice> getInvoiceById(@PathVariable Long id) {
-        return invoiceRepository.findById(id)
+        return invoiceRepository.findByIdWithDetails(id)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }

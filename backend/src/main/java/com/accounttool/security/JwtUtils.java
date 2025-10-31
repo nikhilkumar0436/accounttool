@@ -2,6 +2,7 @@ package com.accounttool.security;
 
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
+import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
@@ -16,24 +17,28 @@ public class JwtUtils {
     @Value("${jwt.expiration}")
     private int jwtExpirationMs;
     
+    private SecretKey secretKey;
+    
+    @PostConstruct
+    public void init() {
+        // Cache the secret key to avoid recreating it on every request
+        this.secretKey = Keys.hmacShaKeyFor(jwtSecret.getBytes());
+    }
+    
     public String generateJwtToken(Authentication authentication) {
         UserDetailsImpl userPrincipal = (UserDetailsImpl) authentication.getPrincipal();
-        
-        SecretKey key = Keys.hmacShaKeyFor(jwtSecret.getBytes());
         
         return Jwts.builder()
                 .subject(userPrincipal.getUsername())
                 .issuedAt(new Date())
                 .expiration(new Date((new Date()).getTime() + jwtExpirationMs))
-                .signWith(key)
+                .signWith(secretKey)
                 .compact();
     }
     
     public String getUserNameFromJwtToken(String token) {
-        SecretKey key = Keys.hmacShaKeyFor(jwtSecret.getBytes());
-        
         return Jwts.parser()
-                .verifyWith(key)
+                .verifyWith(secretKey)
                 .build()
                 .parseSignedClaims(token)
                 .getPayload()
@@ -42,8 +47,7 @@ public class JwtUtils {
     
     public boolean validateJwtToken(String authToken) {
         try {
-            SecretKey key = Keys.hmacShaKeyFor(jwtSecret.getBytes());
-            Jwts.parser().verifyWith(key).build().parseSignedClaims(authToken);
+            Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(authToken);
             return true;
         } catch (JwtException | IllegalArgumentException e) {
             return false;

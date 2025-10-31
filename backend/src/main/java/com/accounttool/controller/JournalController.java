@@ -26,7 +26,7 @@ public class JournalController {
     @GetMapping
     @PreAuthorize("hasRole('USER') or hasRole('ACCOUNTANT') or hasRole('ADMIN')")
     public ResponseEntity<List<Journal>> getAllJournals() {
-        return ResponseEntity.ok(journalRepository.findAll());
+        return ResponseEntity.ok(journalRepository.findAllWithDetails());
     }
     
     @GetMapping("/company/{companyId}")
@@ -38,7 +38,7 @@ public class JournalController {
     @GetMapping("/{id}")
     @PreAuthorize("hasRole('USER') or hasRole('ACCOUNTANT') or hasRole('ADMIN')")
     public ResponseEntity<Journal> getJournalById(@PathVariable Long id) {
-        return journalRepository.findById(id)
+        return journalRepository.findByIdWithDetails(id)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
