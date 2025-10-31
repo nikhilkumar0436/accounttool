@@ -1,6 +1,8 @@
 package com.accounttool.repository;
 
 import com.accounttool.entity.GSTInvoice;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -20,6 +22,11 @@ public interface GSTInvoiceRepository extends JpaRepository<GSTInvoice, Long> {
            "WHERE i.company.id = :companyId")
     List<GSTInvoice> findByCompanyId(@Param("companyId") Long companyId);
     
+    // Paginated version for company invoices
+    @Query("SELECT i FROM GSTInvoice i " +
+           "WHERE i.company.id = :companyId")
+    Page<GSTInvoice> findByCompanyIdPaged(@Param("companyId") Long companyId, Pageable pageable);
+    
     // Optimized query with JOIN FETCH for type filtering
     @Query("SELECT DISTINCT i FROM GSTInvoice i " +
            "LEFT JOIN FETCH i.items " +
@@ -29,6 +36,15 @@ public interface GSTInvoiceRepository extends JpaRepository<GSTInvoice, Long> {
     List<GSTInvoice> findByCompanyIdAndInvoiceType(
         @Param("companyId") Long companyId, 
         @Param("invoiceType") GSTInvoice.InvoiceType invoiceType
+    );
+    
+    // Paginated version for company and type invoices
+    @Query("SELECT i FROM GSTInvoice i " +
+           "WHERE i.company.id = :companyId AND i.invoiceType = :invoiceType")
+    Page<GSTInvoice> findByCompanyIdAndInvoiceTypePaged(
+        @Param("companyId") Long companyId,
+        @Param("invoiceType") GSTInvoice.InvoiceType invoiceType,
+        Pageable pageable
     );
     
     // Optimized query for getting all invoices

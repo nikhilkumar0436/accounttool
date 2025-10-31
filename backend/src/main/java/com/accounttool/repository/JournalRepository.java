@@ -1,6 +1,8 @@
 package com.accounttool.repository;
 
 import com.accounttool.entity.Journal;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -19,6 +21,10 @@ public interface JournalRepository extends JpaRepository<Journal, Long> {
            "LEFT JOIN FETCH j.company " +
            "WHERE j.company.id = :companyId")
     List<Journal> findByCompanyId(@Param("companyId") Long companyId);
+    
+    // Paginated version for company journals
+    @Query("SELECT j FROM Journal j WHERE j.company.id = :companyId")
+    Page<Journal> findByCompanyIdPaged(@Param("companyId") Long companyId, Pageable pageable);
     
     // Optimized query for getting all journals
     @Query("SELECT DISTINCT j FROM Journal j " +
